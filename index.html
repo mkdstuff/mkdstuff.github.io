@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MKDStuff // SYSTEM ONLINE</title>
+  <meta name="description" content="MKDStuff — a hobby project. Under construction.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%230a0a12'/><text x='16' y='22' font-family='monospace' font-size='16' font-weight='bold' fill='%2300f0ff' text-anchor='middle'>M</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #07070d;
+      --cyan: #00f0ff;
+      --magenta: #ff2a6d;
+      --yellow: #f5ed00;
+      --text: #c9d1e0;
+      --dim: #5b6478;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body { height: 100%; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Share Tech Mono", ui-monospace, Consolas, monospace;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* Perspective grid floor */
+    .grid {
+      position: fixed;
+      inset: 50% -50% -50% -50%;
+      background-image:
+        linear-gradient(rgba(255, 42, 109, 0.35) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 42, 109, 0.35) 1px, transparent 1px);
+      background-size: 60px 60px;
+      transform: perspective(400px) rotateX(65deg);
+      transform-origin: top center;
+      animation: grid-move 2s linear infinite;
+      mask-image: linear-gradient(to bottom, transparent, black 40%);
+      -webkit-mask-image: linear-gradient(to bottom, transparent, black 40%);
+      z-index: 0;
+    }
+    @keyframes grid-move {
+      to { background-position: 0 60px; }
+    }
+
+    /* Horizon glow */
+    .horizon {
+      position: fixed;
+      left: 0; right: 0; top: 50%;
+      height: 2px;
+      background: var(--magenta);
+      box-shadow: 0 0 20px 6px rgba(255, 42, 109, 0.6), 0 0 80px 20px rgba(255, 42, 109, 0.25);
+      z-index: 0;
+    }
+
+    /* CRT scanlines + vignette */
+    .crt::before, .crt::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 10;
+    }
+    .crt::before {
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0) 0px,
+        rgba(0, 0, 0, 0) 2px,
+        rgba(0, 0, 0, 0.25) 3px
+      );
+    }
+    .crt::after {
+      background: radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, 0.75) 100%);
+    }
+
+    header, main, footer { position: relative; z-index: 1; }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      padding: 1rem clamp(1rem, 4vw, 3rem);
+      font-size: 0.8rem;
+      color: var(--dim);
+      letter-spacing: 0.1em;
+    }
+    header .status { color: var(--cyan); }
+    header .status::before {
+      content: "";
+      display: inline-block;
+      width: 8px; height: 8px;
+      margin-right: 0.5em;
+      background: var(--cyan);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--cyan);
+      animation: blink 1.4s steps(2) infinite;
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 2rem clamp(1rem, 4vw, 3rem) 4rem;
+    }
+
+    .tag {
+      font-size: 0.85rem;
+      color: var(--yellow);
+      letter-spacing: 0.4em;
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+    }
+
+    /* Glitch title */
+    .glitch {
+      position: relative;
+      font-family: "Orbitron", sans-serif;
+      font-weight: 900;
+      font-size: clamp(2.8rem, 12vw, 8rem);
+      line-height: 1;
+      color: #fff;
+      letter-spacing: 0.04em;
+      text-shadow: 0 0 10px rgba(0, 240, 255, 0.7), 0 0 40px rgba(0, 240, 255, 0.4);
+    }
+    .glitch::before, .glitch::after {
+      content: attr(data-text);
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+    }
+    .glitch::before {
+      color: var(--magenta);
+      left: 3px;
+      text-shadow: -2px 0 var(--magenta);
+      clip-path: inset(0 0 0 0);
+      animation: glitch-a 3s infinite linear alternate-reverse;
+    }
+    .glitch::after {
+      color: var(--cyan);
+      left: -3px;
+      text-shadow: 2px 0 var(--cyan);
+      animation: glitch-b 2.5s infinite linear alternate-reverse;
+    }
+    @keyframes glitch-a {
+      0%   { clip-path: inset(10% 0 85% 0); }
+      10%  { clip-path: inset(45% 0 40% 0); }
+      20%  { clip-path: inset(80% 0 5% 0); }
+      30%  { clip-path: inset(20% 0 70% 0); }
+      40%  { clip-path: inset(60% 0 25% 0); }
+      50%, 100% { clip-path: inset(100% 0 0 0); }
+    }
+    @keyframes glitch-b {
+      0%   { clip-path: inset(70% 0 10% 0); }
+      15%  { clip-path: inset(5% 0 80% 0); }
+      30%  { clip-path: inset(35% 0 50% 0); }
+      45%  { clip-path: inset(90% 0 2% 0); }
+      60%, 100% { clip-path: inset(100% 0 0 0); }
+    }
+
+    .subtitle {
+      margin-top: 1.5rem;
+      font-family: "Orbitron", sans-serif;
+      font-weight: 500;
+      font-size: clamp(0.8rem, 2.5vw, 1.1rem);
+      letter-spacing: 0.5em;
+      color: var(--magenta);
+      text-shadow: 0 0 8px rgba(255, 42, 109, 0.8);
+      text-transform: uppercase;
+    }
+
+    /* Terminal box */
+    .terminal {
+      margin-top: 3rem;
+      width: min(620px, 100%);
+      text-align: left;
+      background: rgba(7, 7, 13, 0.85);
+      border: 1px solid var(--cyan);
+      box-shadow: 0 0 20px rgba(0, 240, 255, 0.25), inset 0 0 20px rgba(0, 240, 255, 0.08);
+      clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 18px 100%, 0 calc(100% - 18px));
+    }
+    .terminal-bar {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.4rem 0.9rem;
+      background: var(--cyan);
+      color: var(--bg);
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+    }
+    .terminal-body {
+      padding: 1rem 1.1rem 1.3rem;
+      font-size: 0.95rem;
+      line-height: 1.7;
+      min-height: 11.5em;
+    }
+    .terminal-body .prompt { color: var(--magenta); }
+    .terminal-body .ok { color: var(--cyan); }
+    .terminal-body .warn { color: var(--yellow); }
+    .cursor {
+      display: inline-block;
+      width: 0.6em;
+      height: 1.1em;
+      vertical-align: text-bottom;
+      background: var(--cyan);
+      animation: blink 1s steps(2) infinite;
+    }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    /* Progress bar */
+    .progress {
+      margin-top: 2rem;
+      width: min(620px, 100%);
+      text-align: left;
+      font-size: 0.8rem;
+      color: var(--dim);
+      letter-spacing: 0.1em;
+    }
+    .progress-track {
+      margin-top: 0.4rem;
+      height: 10px;
+      border: 1px solid var(--yellow);
+      padding: 2px;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0;
+      background: repeating-linear-gradient(-45deg, var(--yellow) 0 6px, transparent 6px 10px);
+      box-shadow: 0 0 10px rgba(245, 237, 0, 0.5);
+      animation: fill 4s ease-out forwards;
+    }
+    @keyframes fill { to { width: 37%; } }
+
+    /* Button */
+    .btn {
+      display: inline-block;
+      margin-top: 2.5rem;
+      padding: 0.9rem 2.2rem;
+      font-family: "Orbitron", sans-serif;
+      font-weight: 500;
+      font-size: 0.9rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      text-decoration: none;
+      color: var(--bg);
+      background: var(--yellow);
+      clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+      transition: background 0.15s, color 0.15s, transform 0.15s;
+    }
+    .btn:hover, .btn:focus-visible {
+      background: var(--cyan);
+      transform: translateY(-2px);
+      outline: none;
+    }
+
+    footer {
+      padding: 1rem clamp(1rem, 4vw, 3rem);
+      font-size: 0.75rem;
+      color: var(--dim);
+      text-align: center;
+      letter-spacing: 0.1em;
+    }
+    footer span { color: var(--magenta); }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; }
+      .progress-fill { width: 37%; }
+    }
+  </style>
+</head>
+<body class="crt">
+  <div class="horizon" aria-hidden="true"></div>
+  <div class="grid" aria-hidden="true"></div>
+
+  <header>
+    <div class="status">NODE ONLINE</div>
+    <div id="clock">--:--:--</div>
+  </header>
+
+  <main>
+    <p class="tag">// hobby_project.exe</p>
+    <h1 class="glitch" data-text="MKDSTUFF">MKDSTUFF</h1>
+    <p class="subtitle">Under Construction</p>
+
+    <div class="terminal" role="log" aria-live="polite">
+      <div class="terminal-bar">
+        <span>TERM://MKDSTUFF</span>
+        <span>v0.0.1</span>
+      </div>
+      <div class="terminal-body" id="terminal"></div>
+    </div>
+
+    <div class="progress">
+      <span>BUILD PROGRESS</span>
+      <div class="progress-track"><div class="progress-fill"></div></div>
+    </div>
+
+    <a class="btn" href="https://github.com/MKDStuff" target="_blank" rel="noopener">Jack In &rarr; GitHub</a>
+  </main>
+
+  <footer>
+    &copy; <span id="year">2026</span> MKDStuff <span>//</span> built for fun, not for profit
+  </footer>
+
+  <script>
+    // Clock
+    const clock = document.getElementById("clock");
+    const tick = () => {
+      clock.textContent = new Date().toLocaleTimeString("en-GB", { hour12: false }) + " NET.TIME";
+    };
+    tick();
+    setInterval(tick, 1000);
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    // Terminal typing
+    const lines = [
+      { cls: "prompt", text: "> boot --target mkdstuff.github.io" },
+      { cls: "ok",     text: "[ OK ] neural link established" },
+      { cls: "ok",     text: "[ OK ] loading hobby modules..." },
+      { cls: "warn",   text: "[WARN] content not found: still in the forge" },
+      { cls: "prompt", text: "> check back soon, choom." },
+    ];
+    const term = document.getElementById("terminal");
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const cursor = document.createElement("span");
+    cursor.className = "cursor";
+
+    if (reduced) {
+      lines.forEach(l => {
+        const div = document.createElement("div");
+        div.className = l.cls;
+        div.textContent = l.text;
+        term.appendChild(div);
+      });
+      term.appendChild(cursor);
+    } else {
+      let li = 0;
+      const typeLine = () => {
+        if (li >= lines.length) { term.appendChild(cursor); return; }
+        const { cls, text } = lines[li++];
+        const div = document.createElement("div");
+        div.className = cls;
+        term.appendChild(div);
+        div.appendChild(cursor);
+        let ci = 0;
+        const step = () => {
+          if (ci < text.length) {
+            cursor.before(text[ci++]);
+            setTimeout(step, 18 + Math.random() * 40);
+          } else {
+            cursor.remove();
+            setTimeout(typeLine, 350);
+          }
+        };
+        step();
+      };
+      setTimeout(typeLine, 600);
+    }
+  </script>
+</body>
+</html>
